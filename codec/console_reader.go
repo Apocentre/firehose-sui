@@ -26,6 +26,7 @@ type ConsoleReader struct {
 	close  func()
 	done   chan interface{}
 	logger *zap.Logger
+	encoder  firecore.BlockEncoder
 
 	activeBlockStartTime time.Time
 	activeBlock          *pbsui.CheckpointData
@@ -44,6 +45,7 @@ func NewConsoleReader(
 	l := &ConsoleReader{
 		lines:  lines,
 		close:  func() {},
+		encoder: blockEncoder,
 		done:   make(chan interface{}),
 		logger: logger,
 		stats: newConsoleReaderStats(),
@@ -355,7 +357,7 @@ func (r *ConsoleReader) readDisplayUpdate(params []string) error {
 
 // Format:
 // FIRE BLOCK_END <height>
-func (r *ConsoleReader) readBlockEnd(params []string) (*pbsui.CheckpointData, error) {
+func (r *ConsoleReader) readBlockEnd(params []string) (*pbbstream.Block, error) {
 	if err := validateChunk(params, 1); err != nil {
 		return nil, fmt.Errorf("invalid BLOCK_END line: %w", err)
 	}
@@ -391,7 +393,12 @@ func (r *ConsoleReader) readBlockEnd(params []string) (*pbsui.CheckpointData, er
 	block := r.activeBlock
 	r.resetActiveBlock()
 
-	return block, nil
+	bstreamBlock, err := r.encoder.Encode(firecore.BlockEnveloppe{Block: block, LIBNum: block.GetFirehoseBlockLIBNum()})
+	if err != nil {
+		return nil, err
+	}
+
+	return bstreamBlock, nil
 }
 
 func (r *ConsoleReader) resetActiveBlock() {

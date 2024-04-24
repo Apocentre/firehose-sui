@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/streamingfast/bstream"
+	pbbstream "github.com/streamingfast/bstream/pb/sf/bstream/v1"
 	firecore "github.com/streamingfast/firehose-core"
 )
 
@@ -50,7 +51,10 @@ func (b *CheckpointData) GetFirehoseBlockLIBNum() uint64 {
 	return number - 1
 }
 
-func (b *CheckpointData) AsRef() bstream.BlockRef {
-	return bstream.NewBlockRef(b.GetFirehoseBlockID(), b.Checkpoint.SequenceNumber)
+func (b *CheckpointData) AsRef() pbbstream.BlockRef {
+	return pbbstream.BlockRef{
+		Num: b.GetFirehoseBlockNumber(),
+		Id:  b.GetFirehoseBlockID(),
+	}
 }
 
