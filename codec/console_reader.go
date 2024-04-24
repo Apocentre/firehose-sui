@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apocentre/firehose-sui/types"
-	pbsui "github.com/apocentre/firehose-sui/types/pb/sui"
+	pbsui "github.com/apocentre/firehose-sui/pb/sf/sui/type/v1"
+	"github.com/cometbft/cometbft/types"
 	"github.com/golang/protobuf/proto"
 	"github.com/streamingfast/bstream"
 	"go.uber.org/zap"
