@@ -5,7 +5,7 @@ Firehose on Sui Blockchain
 You would need to download the `sui-sf-indexer` source code and build it locally.
 
 ```bash
-git clone https://github.com/ticketland-io/sui-sf-indexer
+git clone https://github.com/apocentre/sui-sf-indexer
 cd sui-sf-indexer
 cargo build --release
 ```
