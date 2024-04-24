@@ -1,0 +1,22 @@
+# Invoked using:
+# The `./devel/stdin/start.sh` does the above invocation and pipes the output to the `stdin` process.
+start:
+  args:
+  - firehose
+  - merger
+  - reader-node
+  - relayer
+  flags:
+    # The sui block chain genesis block's height is 1
+    common-first-streamable-block: 1
+    reader-node-debug-firehose-logs: true
+    # Specifies the path to the binary, we assume you did
+    reader-node-path: "sui-sf-indexer"
+    reader-node-data-dir: "{data-dir}/reader-node"
+    reader-node-start-block-num: 1
+
+    # Flags that will be added to the dummy chain process command
+    # starting-checkpoint-seq should be same as reader-node-start-block-num
+    reader-node-arguments:
+      --sui-node-config={data-dir}/../config/full_node.yaml
+      --starting-checkpoint-seq=1

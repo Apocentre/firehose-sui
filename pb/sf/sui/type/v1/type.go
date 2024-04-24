@@ -53,3 +53,4 @@ func (b *CheckpointData) GetFirehoseBlockLIBNum() uint64 {
 func (b *CheckpointData) AsRef() bstream.BlockRef {
 	return bstream.NewBlockRef(b.GetFirehoseBlockID(), b.Checkpoint.SequenceNumber)
 }
+

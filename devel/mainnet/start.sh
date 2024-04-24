@@ -3,7 +3,7 @@
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 clean=
-fireacme="$ROOT/../fireacme"
+firesui="$ROOT/../firesui"
 
 main() {
   pushd "$ROOT" &> /dev/null
@@ -24,16 +24,11 @@ main() {
     rm -rf firehose-data &> /dev/null || true
   fi
 
-  chain_data="$ROOT/firehose-data/dummy-blockchain/data"
-  if [[ ! -d  "$chain_data" ]]; then
-    mkdir -p "$chain_data"
-  fi
+  # Temporary just to ensure I have the right folder structure while testing stuff around,
+  # should be removed once properly handled in firehose-sui core code directly.
+  mkdir -p firehose-data/reader/data
 
-  # if ! command -v dummy-blockchain >/dev/null 2>&1; then
-  #   usage_error "The 'dummy-blockchain' executable must be found within your PATH, install it from source of 'https://github.com/streamingfast/dummy-blockchain'"
-  # fi
-
-  exec go run github.com/streamingfast/dummy-blockchain@v1.2.0 start --tracer=firehose --block-rate=60 --store-dir "$chain_data" | $fireacme -c $(basename $ROOT).yaml start "$@"
+  exec $firesui -c $(basename $ROOT).yaml start "$@"
 }
 
 usage_error() {
@@ -49,7 +44,7 @@ usage_error() {
 usage() {
   echo "usage: start.sh [-c]"
   echo ""
-  echo "Start $(basename $ROOT) environment."
+  echo "Start $(basename $ROOT) environment which goals is to sync with Sui"
   echo ""
   echo "Options"
   echo "    -c             Clean actual data directory first"
