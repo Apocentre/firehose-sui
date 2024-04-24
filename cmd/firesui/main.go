@@ -9,7 +9,7 @@ import (
 
 func main() {
 	fhCmd.Main(&firecore.Chain[*pbsui.CheckpointData]{
-		ShortName:            "sui",
+		ShortName:            "firesui",
 		LongName:             "SUI",
 		ExecutableName:       "sui-sf-indexer",
 		FullyQualifiedModule: "github.com/apocentre/firehose-sui",
