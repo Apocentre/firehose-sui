@@ -8,10 +8,10 @@ import (
 
 func main() {
 	fhCmd.Main(&firecore.Chain[*pbacme.Block]{
-		ShortName:            "acme",
-		LongName:             "Acme",
-		ExecutableName:       "dummy-blockchain",
-		FullyQualifiedModule: "github.com/streamingfast/firehose-acme",
+		ShortName:            "sui",
+		LongName:             "SUI",
+		ExecutableName:       "sui-sf-indexer",
+		FullyQualifiedModule: "github.com/apocentre/firehose-sui",
 		Version:              version,
 
 		FirstStreamableBlock: 1,
