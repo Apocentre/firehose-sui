@@ -1,13 +1,14 @@
 package main
 
 import (
-	pbsui "github.com/streamingfast/firehose-acme/pb/sf/acme/type/v1"
+	"github.com/apocentre/firehose-sui/codec"
+	pbsui "github.com/apocentre/firehose-sui/pb/sf/sui/type/v1"
 	firecore "github.com/streamingfast/firehose-core"
 	fhCmd "github.com/streamingfast/firehose-core/cmd"
 )
 
 func main() {
-	fhCmd.Main(&firecore.Chain[*pbsui.Block]{
+	fhCmd.Main(&firecore.Chain[*pbsui.CheckpointData]{
 		ShortName:            "sui",
 		LongName:             "SUI",
 		ExecutableName:       "sui-sf-indexer",
@@ -16,10 +17,10 @@ func main() {
 
 		FirstStreamableBlock: 1,
 
-		BlockFactory:         func() firecore.Block { return new(pbsui.Block) },
-		ConsoleReaderFactory: firecore.NewConsoleReader,
+		BlockFactory:         func() firecore.Block { return new(pbsui.CheckpointData) },
+		ConsoleReaderFactory: codec.NewConsoleReader,
 
-		Tools: &firecore.ToolsConfig[*pbsui.Block]{},
+		Tools: &firecore.ToolsConfig[*pbsui.CheckpointData]{},
 	})
 }
 

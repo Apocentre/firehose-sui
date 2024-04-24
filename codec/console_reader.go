@@ -11,10 +11,12 @@ import (
 	"time"
 
 	pbsui "github.com/apocentre/firehose-sui/pb/sf/sui/type/v1"
-	"github.com/cometbft/cometbft/types"
-	"github.com/golang/protobuf/proto"
-	"github.com/streamingfast/bstream"
+	pbbstream "github.com/streamingfast/bstream/pb/sf/bstream/v1"
+	firecore "github.com/streamingfast/firehose-core"
+	"github.com/streamingfast/firehose-core/node-manager/mindreader"
+	"github.com/streamingfast/logging"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 )
 
 // ConsoleReader is what reads the `geth` output directly. It builds
@@ -33,13 +35,17 @@ type ConsoleReader struct {
 	stats                *consoleReaderStats
 }
 
-func NewConsoleReader(logger *zap.Logger, lines chan string) (*ConsoleReader, error) {
+func NewConsoleReader(
+	lines chan string,
+	blockEncoder firecore.BlockEncoder,
+	logger *zap.Logger,
+	tracer logging.Tracer,
+) (mindreader.ConsolerReader, error) {
 	l := &ConsoleReader{
 		lines:  lines,
 		close:  func() {},
 		done:   make(chan interface{}),
 		logger: logger,
-
 		stats: newConsoleReaderStats(),
 	}
 
@@ -58,26 +64,31 @@ func (r *ConsoleReader) Close() {
 	r.close()
 }
 
-func (r *ConsoleReader) ReadBlock() (out *bstream.Block, err error) {
+func (r *ConsoleReader) ReadBlock() (out *pbbstream.Block, err error) {
 	block, err := r.next()
 	if err != nil {
 		return nil, err
 	}
 
-	return types.BlockFromProto(block)
+	if block == nil {
+		return nil, fmt.Errorf("console reader read a nil *pbbstream.Block, this is invalid")
+	}
+
+	return block.(*pbbstream.Block), nil
 }
 
 const (
-	LogPrefix      = "FIRE"
-	LogInit        = "INIT"
-	LogBlockStart  = "BLOCK_START"
-	LogTrx         = "TRX"
-	LogObj         = "OBJ"
-	LogCheckpoint  = "CHECKPOINT"
-	LogBlockEnd    = "BLOCK_END"
+	LogPrefix         = "FIRE"
+	LogInit           = "INIT"
+	LogCheckpoint     = "CHECKPOINT"
+	LogBlockStart     = "BLOCK_START"
+	LogTrx            = "TRX"
+	LogEvent          = "EVT"
+	LogDisplayUpdate  = "DSP_UPDATE"
+	LogBlockEnd       = "BLOCK_END"
 )
 
-func (r *ConsoleReader) next() (out *pbsui.CheckpointData, err error) {
+func (r *ConsoleReader) next() (out interface{}, err error) {
 	for line := range r.lines {
 		if !strings.HasPrefix(line, LogPrefix) {
 			continue
@@ -111,8 +122,10 @@ func (r *ConsoleReader) next() (out *pbsui.CheckpointData, err error) {
 			err = r.readCheckpointOverview(tokens[1:])
 		case LogTrx:
 			err = r.readTransactionBlock(tokens[1:])
-		case LogObj:
-			err = r.readObjectChange(tokens[1:])
+		case LogEvent:
+			err = r.readEvent(tokens[1:])
+		case LogDisplayUpdate:
+			err = r.readDisplayUpdate(tokens[1:])
 		case LogBlockStart:
 			err = r.readBlockStart(tokens[1:])
 		case LogBlockEnd:
@@ -238,7 +251,7 @@ func (r *ConsoleReader) readBlockStart(params []string) error {
 }
 
 // Format:
-// FIRE CHECKPOINT <sui_checkpoint_v1.Checkpoint>
+// FIRE CHECKPOINT <pbsui.Checkpoint>
 func(r * ConsoleReader) readCheckpointOverview(params []string) error {
 	if err := validateChunk(params, 1); err != nil {
 		return fmt.Errorf("invalid log line length: %w", err)
@@ -250,12 +263,12 @@ func(r * ConsoleReader) readCheckpointOverview(params []string) error {
 
 	out, err := base64.StdEncoding.DecodeString(params[0])
 	if err != nil {
-		return fmt.Errorf("read trx in block %d: invalid base64 value: %w", r.activeBlock.Number(), err)
+		return fmt.Errorf("read trx in block %d: invalid base64 value: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
 	}
 
 	checkpoint := &pbsui.Checkpoint{}
 	if err := proto.Unmarshal(out, checkpoint); err != nil {
-		return fmt.Errorf("read CHECKPOIN in block %d: invalid proto: %w", r.activeBlock.Number(), err)
+		return fmt.Errorf("read CHECKPOIN in block %d: invalid proto: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
 	}
 
 	r.activeBlock.Checkpoint = checkpoint
@@ -264,7 +277,7 @@ func(r * ConsoleReader) readCheckpointOverview(params []string) error {
 }
 
 // Format:
-// FIRE TRX <sui_checkpoint_v1.CheckpointTransactionBlockResponse>
+// FIRE TRX <pbsui.Transaction>
 func (r *ConsoleReader) readTransactionBlock(params []string) error {
 	if err := validateChunk(params, 1); err != nil {
 		return fmt.Errorf("invalid log line length: %w", err)
@@ -276,12 +289,12 @@ func (r *ConsoleReader) readTransactionBlock(params []string) error {
 
 	out, err := base64.StdEncoding.DecodeString(params[0])
 	if err != nil {
-		return fmt.Errorf("read trx in block %d: invalid base64 value: %w", r.activeBlock.Number(), err)
+		return fmt.Errorf("read trx in block %d: invalid base64 value: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
 	}
 
-	transaction := &pbsui.CheckpointTransactionBlockResponse{}
+	transaction := &pbsui.Transaction{}
 	if err := proto.Unmarshal(out, transaction); err != nil {
-		return fmt.Errorf("read trx in block %d: invalid proto: %w", r.activeBlock.Number(), err)
+		return fmt.Errorf("read trx in block %d: invalid proto: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
 	}
 
 	r.activeBlock.Transactions = append(r.activeBlock.Transactions, transaction)
@@ -290,27 +303,52 @@ func (r *ConsoleReader) readTransactionBlock(params []string) error {
 }
 
 // Format:
-// FIRE OBJ <sui_checkpoint_v1.ChangedObject>
-func (r *ConsoleReader) readObjectChange(params []string) error {
+// FIRE EVT <pbsui.IndexedEvent>
+func (r *ConsoleReader) readEvent(params []string) error {
 	if err := validateChunk(params, 1); err != nil {
 		return fmt.Errorf("invalid log line length: %w", err)
 	}
 
 	if r.activeBlock == nil {
-		return fmt.Errorf("no active block in progress when reading OBJ")
+		return fmt.Errorf("no active block in progress when reading EVT")
 	}
 
 	out, err := base64.StdEncoding.DecodeString(params[0])
 	if err != nil {
-		return fmt.Errorf("read trx in block %d: invalid base64 value: %w", r.activeBlock.Number(), err)
+		return fmt.Errorf("read EVT in block %d: invalid base64 value: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
 	}
 
-	changed_object := &pbsui.ChangedObject{}
-	if err := proto.Unmarshal(out, changed_object); err != nil {
-		return fmt.Errorf("read OBJ in block %d: invalid proto: %w", r.activeBlock.Number(), err)
+	event := &pbsui.IndexedEvent{}
+	if err := proto.Unmarshal(out, event); err != nil {
+		return fmt.Errorf("read EVT in block %d: invalid proto: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
 	}
 
-	r.activeBlock.ChangedObjects = append(r.activeBlock.ChangedObjects, changed_object)
+	r.activeBlock.Events = append(r.activeBlock.Events, event)
+
+	return nil
+}
+
+// Format:
+// FIRE EVT <pbsui.StoredDisplay>
+func (r *ConsoleReader) readDisplayUpdate(params []string) error {
+	if err := validateChunk(params, 1); err != nil {
+		return fmt.Errorf("invalid log line length: %w", err)
+	}
+
+	if r.activeBlock == nil {
+		return fmt.Errorf("no active block in progress when reading DSP_UPDATE")
+	}
+
+	out, err := base64.StdEncoding.DecodeString(params[0])
+	if err != nil {
+		return fmt.Errorf("read DSP_UPDATE in block %d: invalid base64 value: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
+	}
+	display_update := &pbsui.StoredDisplay{}
+	if err := proto.Unmarshal(out, display_update); err != nil {
+		return fmt.Errorf("read DSP_UPDATE in block %d: invalid proto: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
+	}
+
+	r.activeBlock.DisplayUpdates = append(r.activeBlock.DisplayUpdates, display_update)
 
 	return nil
 }
@@ -331,12 +369,12 @@ func (r *ConsoleReader) readBlockEnd(params []string) (*pbsui.CheckpointData, er
 		return nil, fmt.Errorf("no active block in progress when reading BLOCK_END")
 	}
 
-	if r.activeBlock.Number() != height {
-		return nil, fmt.Errorf("active block's height %d does not match BLOCK_END received height %d", r.activeBlock.Number(), height)
+	if r.activeBlock.GetFirehoseBlockNumber() != height {
+		return nil, fmt.Errorf("active block's height %d does not match BLOCK_END received height %d", r.activeBlock.GetFirehoseBlockNumber(), height)
 	}
 
 	if len(r.activeBlock.Transactions) == 0 {
-		return nil, fmt.Errorf("active block height %d does not contain any transaction", r.activeBlock.Number())
+		return nil, fmt.Errorf("active block height %d does not contain any transaction", r.activeBlock.GetFirehoseBlockNumber())
 	}
 
 	r.stats.blockRate.Inc()
@@ -345,9 +383,9 @@ func (r *ConsoleReader) readBlockEnd(params []string) (*pbsui.CheckpointData, er
 	r.stats.lastBlock = r.activeBlock.AsRef()
 
 	r.logger.Debug("console reader node block",
-		zap.String("id", r.activeBlock.ID()),
-		zap.Uint64("height", r.activeBlock.Number()),
-		zap.Time("timestamp", r.activeBlock.Time()),
+		zap.String("id", r.activeBlock.GetFirehoseBlockID()),
+		zap.Uint64("height", r.activeBlock.GetFirehoseBlockNumber()),
+		zap.Time("timestamp", r.activeBlock.GetFirehoseBlockTime()),
 	)
 
 	block := r.activeBlock

@@ -49,3 +49,7 @@ func (b *CheckpointData) GetFirehoseBlockLIBNum() uint64 {
 	// to LIBNum == Num so to play safe for now, previous block of current is irreversible.
 	return number - 1
 }
+
+func (b *CheckpointData) AsRef() bstream.BlockRef {
+	return bstream.NewBlockRef(b.GetFirehoseBlockID(), b.Checkpoint.SequenceNumber)
+}

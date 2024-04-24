@@ -1,11 +1,15 @@
-module github.com/streamingfast/firehose-acme
+module github.com/apocentre/firehose-sui
 
 go 1.22
 
 toolchain go1.22.0
 
 require (
+	github.com/golang/protobuf v1.5.4
+	github.com/streamingfast/bstream v0.0.2-0.20240409115502-d29a2fb46f37
+	github.com/streamingfast/dmetrics v0.0.0-20230919161904-206fa8ebd545
 	github.com/streamingfast/firehose-core v1.3.6
+	go.uber.org/zap v1.26.0
 	google.golang.org/protobuf v1.33.0
 )
 
@@ -70,7 +74,6 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
@@ -146,14 +149,12 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.15.0 // indirect
-	github.com/streamingfast/bstream v0.0.2-0.20240409115502-d29a2fb46f37 // indirect
 	github.com/streamingfast/cli v0.0.4-0.20240412191021-5f81842cb71d // indirect
 	github.com/streamingfast/dauth v0.0.0-20240222213226-519afc16cf84 // indirect
 	github.com/streamingfast/dbin v0.9.1-0.20231117225723-59790c798e2c // indirect
 	github.com/streamingfast/derr v0.0.0-20230515163924-8570aaa43fe1 // indirect
 	github.com/streamingfast/dgrpc v0.0.0-20240222213940-b9f324ff4d5c // indirect
 	github.com/streamingfast/dmetering v0.0.0-20240409120340-b517f0225538 // indirect
-	github.com/streamingfast/dmetrics v0.0.0-20230919161904-206fa8ebd545 // indirect
 	github.com/streamingfast/dstore v0.1.1-0.20240325191553-bcce8892a9bb // indirect
 	github.com/streamingfast/dtracing v0.0.0-20220305214756-b5c0e8699839 // indirect
 	github.com/streamingfast/jsonpb v0.0.0-20210811021341-3670f0aa02d0 // indirect
@@ -186,7 +187,6 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/automaxprocs v1.5.1 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	go.uber.org/zap v1.26.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1 // indirect
 	golang.org/x/mod v0.12.0 // indirect
