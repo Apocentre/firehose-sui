@@ -3,6 +3,7 @@ syntax = "proto3";
 
 package sui.checkpoint.v1;
 
+option go_package = "github.com/apocentre/firehose-sui/pb/sf/sui/type/v1;pbsui";
 import "google/protobuf/empty.proto";
 
 message CheckpointData {
