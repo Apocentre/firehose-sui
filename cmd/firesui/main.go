@@ -8,6 +8,8 @@ import (
 )
 
 func main() {
+	// syncstate.SetupReaderStartBlock()
+	
 	fhCmd.Main(&firecore.Chain[*pbsui.CheckpointData]{
 		ShortName:            "sui",
 		LongName:             "Firehose SUI",
