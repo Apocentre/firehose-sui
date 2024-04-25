@@ -1,0 +1,6 @@
+# Invoked using:
+# The `./devel/stdin/start.sh` does the above invocation and pipes the output to the `stdin` process.
+start:
+  args:
+  - relayer
+  flags:

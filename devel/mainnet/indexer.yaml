@@ -5,7 +5,8 @@ start:
   - firehose
   - merger
   - reader-node
-  - relayer
+  # https://discord.com/channels/666749063386890256/1227506844835250178/1228365276932739233
+  # - relayer
   flags:
     # The sui block chain genesis block's height is 1
     common-first-streamable-block: 1
