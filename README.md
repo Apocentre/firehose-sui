@@ -20,6 +20,20 @@ Make sure the `target/release/sui-sf-indexer` binary is moved to a folder that i
 ./pb/generate.sh
 ```
 
+## Run
+
+Before we run we need to create the `firesui` binary.
+
+```bash
+go install ./cmd/firesui
+```
+
+Then we just run it by pointing to the correct config file.
+
+```bash
+firesui -c ./devel/mainnet/indexer.yaml start
+```
+
 ## License
 
 [Apache 2.0](LICENSE)

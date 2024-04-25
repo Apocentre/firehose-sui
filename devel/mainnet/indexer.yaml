@@ -19,5 +19,5 @@ start:
 
     # Flags that will be added to the dummy chain process command
     reader-node-arguments:
-      --sui-node-config={data-dir}/../config/full_node.yaml
+      --sui-node-config=devel/mainnet/config/full_node.yaml
       --starting-checkpoint-seq={start-block-num}

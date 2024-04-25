@@ -12,7 +12,7 @@
       "program": "${workspaceFolder}/cmd/firesui/main.go",
       "cwd": "${workspaceFolder}/devel/mainnet",
       "args": [
-        "-c", "mainnet.yaml", "start"
+        "-c", "indexer.yaml", "start"
       ]
     }
   ]
