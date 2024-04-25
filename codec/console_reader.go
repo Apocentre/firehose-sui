@@ -1,7 +1,6 @@
 package codec
 
 import (
-	"bufio"
 	"context"
 	"encoding/base64"
 	"fmt"
@@ -155,29 +154,6 @@ func (r *ConsoleReader) next() (out interface{}, err error) {
 
 	r.logger.Info("lines channel has been closed")
 	return nil, io.EOF
-}
-
-func (r *ConsoleReader) ProcessData(reader io.Reader) error {
-	scanner := r.buildScanner(reader)
-	for scanner.Scan() {
-		line := scanner.Text()
-		r.lines <- line
-	}
-
-	if scanner.Err() == nil {
-		close(r.lines)
-		return io.EOF
-	}
-
-	return scanner.Err()
-}
-
-func (r *ConsoleReader) buildScanner(reader io.Reader) *bufio.Scanner {
-	buf := make([]byte, 50*1024*1024)
-	scanner := bufio.NewScanner(reader)
-	scanner.Buffer(buf, 50*1024*1024)
-
-	return scanner
 }
 
 // Format:

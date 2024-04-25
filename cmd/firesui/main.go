@@ -8,14 +8,14 @@ import (
 )
 
 func main() {
+	// syncstate.SetupReaderStartBlock()
+	
 	fhCmd.Main(&firecore.Chain[*pbsui.CheckpointData]{
 		ShortName:            "sui",
 		LongName:             "Firehose SUI",
 		ExecutableName:       "sui-sf-indexer",
 		FullyQualifiedModule: "github.com/apocentre/firehose-sui",
 		Version:              version,
-
-		FirstStreamableBlock: 1,
 
 		BlockFactory:         func() firecore.Block { return new(pbsui.CheckpointData) },
 		ConsoleReaderFactory: codec.NewConsoleReader,
