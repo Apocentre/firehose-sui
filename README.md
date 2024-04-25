@@ -14,6 +14,12 @@ Make sure the `target/release/sui-sf-indexer` binary is moved to a folder that i
 > Binaries will be available to download soon so you don't have to build from source code.
 
 
+## Build Protobuf models
+
+```bash
+./pb/generate.sh
+```
+
 ## License
 
 [Apache 2.0](LICENSE)

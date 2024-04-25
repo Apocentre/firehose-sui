@@ -84,6 +84,7 @@ const (
 	LogCheckpoint     = "CHECKPOINT"
 	LogBlockStart     = "BLOCK_START"
 	LogTrx            = "TRX"
+	LogObjChange      = "OBJ_CHANGE"
 	LogEvent          = "EVT"
 	LogDisplayUpdate  = "DSP_UPDATE"
 	LogBlockEnd       = "BLOCK_END"
@@ -123,6 +124,8 @@ func (r *ConsoleReader) next() (out interface{}, err error) {
 			err = r.readCheckpointOverview(tokens[1:])
 		case LogTrx:
 			err = r.readTransactionBlock(tokens[1:])
+		case LogObjChange:
+			err = r.readTransactionObjectChange(tokens[1:])
 		case LogEvent:
 			err = r.readEvent(tokens[1:])
 		case LogDisplayUpdate:
@@ -267,15 +270,41 @@ func (r *ConsoleReader) readTransactionBlock(params []string) error {
 
 	out, err := base64.StdEncoding.DecodeString(params[0])
 	if err != nil {
-		return fmt.Errorf("read trx in block %d: invalid base64 value: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
+		return fmt.Errorf("read TRX in block %d: invalid base64 value: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
 	}
 
 	transaction := &pbsui.Transaction{}
 	if err := proto.Unmarshal(out, transaction); err != nil {
-		return fmt.Errorf("read trx in block %d: invalid proto: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
+		return fmt.Errorf("read TRX in block %d: invalid proto: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
 	}
 
 	r.activeBlock.Transactions = append(r.activeBlock.Transactions, transaction)
+
+	return nil
+}
+
+// Format:
+// FIRE OBJ_CHANGE <pbsui.TransactionObjectChange>
+func (r *ConsoleReader) readTransactionObjectChange(params []string) error {
+	if err := validateChunk(params, 1); err != nil {
+		return fmt.Errorf("invalid log line length: %w", err)
+	}
+
+	if r.activeBlock == nil {
+		return fmt.Errorf("no active block in progress when reading TRX")
+	}
+
+	out, err := base64.StdEncoding.DecodeString(params[0])
+	if err != nil {
+		return fmt.Errorf("read OBJ_CHANGE in block %d: invalid base64 value: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
+	}
+
+	tx_object_change := &pbsui.TransactionObjectChange{}
+	if err := proto.Unmarshal(out, tx_object_change); err != nil {
+		return fmt.Errorf("read OBJ_CHANGE in block %d: invalid proto: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
+	}
+
+	r.activeBlock.ObjectChange = tx_object_change
 
 	return nil
 }
