@@ -14,6 +14,7 @@ start:
     reader-node-path: "sui-sf-indexer"
     reader-node-data-dir: "{data-dir}/reader-node"
     reader-node-blocks-chan-capacity: 1000
+    reader-node-start-block-num: 1
 
     # Flags that will be added to the dummy chain process command
     reader-node-arguments:

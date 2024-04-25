@@ -126,6 +126,8 @@ github.com/abourget/llerrgroup v0.2.0 h1:2nPXy6Owo/KOKDQYvjMmS8rsjtitvuP2OEGrqgp
 github.com/abourget/llerrgroup v0.2.0/go.mod h1:QukSa1Sim/0R4aRlWdiBdAy+0i1PBfOd1WHpfYM1ngA=
 github.com/alecthomas/gometalinter v2.0.11+incompatible/go.mod h1:qfIpQGGz3d+NmgyPBqv+LSh50emm1pt72EtcX2vKYQk=
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
+github.com/apocentre/firehose-core v0.0.0-20240425115248-879b6f53dfdb h1:3sHCOweeZ/vL4qxLcx58RA1mKXxABBmRo0UTo8Z10W4=
+github.com/apocentre/firehose-core v0.0.0-20240425115248-879b6f53dfdb/go.mod h1:MiRARSMkCFbZBrWnI/anwC8/xXiUkjNktvLqAVI38p8=
 github.com/aws/aws-sdk-go v1.22.1/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/aws/aws-sdk-go v1.37.0/go.mod h1:hcU610XS61/+aQV88ixoOzUoG7v3b31pl2zKMmprdro=
 github.com/aws/aws-sdk-go v1.44.325 h1:jF/L99fJSq/BfiLmUOflO/aM+LwcqBm0Fe/qTK5xxuI=
