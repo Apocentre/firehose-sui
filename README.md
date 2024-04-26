@@ -28,11 +28,18 @@ Before we run we need to create the `firesui` binary.
 go install ./cmd/firesui
 ```
 
-Then we just run it by pointing to the correct config file.
+Run `reader-node` and `merger`. This instance will read data from the stdin and store (and merge) the results in files on the disk.
 
 ```bash
 firesui -c ./devel/mainnet/indexer.yaml start
 ```
+
+Finally, if we want to stream the above saved files to the upstream substreams we would need to run the `firehose` and `relayer`.
+
+```bash
+firesui -c ./devel/mainnet/firehose.yaml start
+```
+
 
 ## License
 

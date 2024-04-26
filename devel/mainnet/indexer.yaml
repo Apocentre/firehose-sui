@@ -2,7 +2,6 @@
 # The `./devel/stdin/start.sh` does the above invocation and pipes the output to the `stdin` process.
 start:
   args:
-  - firehose
   - merger
   - reader-node
   # https://discord.com/channels/666749063386890256/1227506844835250178/1228365276932739233

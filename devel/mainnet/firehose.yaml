@@ -2,5 +2,7 @@
 # The `./devel/stdin/start.sh` does the above invocation and pipes the output to the `stdin` process.
 start:
   args:
+  - firehose
   - relayer
+  - substreams-tier1
   flags:
