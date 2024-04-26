@@ -1,2 +1,2 @@
-generate.sh - Thu Apr 25 21:01:15 EEST 2024 - ppoliani
-streamingfast/firehose-sui/proto revision: b220344
+generate.sh - Fri Apr 26 12:47:25 EEST 2024 - ppoliani
+streamingfast/firehose-sui/proto revision: 5bcda6f
