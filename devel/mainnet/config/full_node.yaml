@@ -17,7 +17,7 @@ genesis:
 authority-store-pruning-config:
   num-latest-epoch-dbs-to-retain: 3
   epoch-db-pruning-period-secs: 3600
-  num-epochs-to-retain: 0
+  num-epochs-to-retain: 10
   max-checkpoints-in-batch: 10
   max-transactions-in-batch: 1000
   use-range-deletion: true
