@@ -231,25 +231,34 @@ func (r *ConsoleReader) readBlockStart(params []string) error {
 	return nil
 }
 
-// Format:
-// FIRE CHECKPOINT <pbsui.Checkpoint>
-func(r * ConsoleReader) readCheckpointOverview(params []string) error {
+func(r *ConsoleReader) validate(params []string, valueType string) ([]byte, error) {
 	if err := validateChunk(params, 1); err != nil {
-		return fmt.Errorf("invalid log line length: %w", err)
+		return nil, fmt.Errorf("invalid log line length: %w", err)
 	}
 
 	if r.activeBlock == nil {
-		return fmt.Errorf("no active block in progress when reading CHECKPOINT")
+		return nil, fmt.Errorf("no active block in progress when reading %s", valueType)
 	}
 
 	out, err := base64.StdEncoding.DecodeString(params[0])
 	if err != nil {
-		return fmt.Errorf("read trx in block %d: invalid base64 value: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
+		return nil, fmt.Errorf("read %s in block %d: invalid base64 value: %w", valueType, r.activeBlock.GetFirehoseBlockNumber(), err)
+	}
+
+	return out, nil
+}
+
+// Format:
+// FIRE CHECKPOINT <pbsui.Checkpoint>
+func(r * ConsoleReader) readCheckpointOverview(params []string) error {
+	out, err := r.validate(params, "CHECKPOINT")
+	if err != nil {
+		return err
 	}
 
 	checkpoint := &pbsui.Checkpoint{}
 	if err := proto.Unmarshal(out, checkpoint); err != nil {
-		return fmt.Errorf("read CHECKPOIN in block %d: invalid proto: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
+		return fmt.Errorf("read CHECKPOINT in block %d: invalid proto: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
 	}
 
 	r.activeBlock.Checkpoint = checkpoint
@@ -260,17 +269,9 @@ func(r * ConsoleReader) readCheckpointOverview(params []string) error {
 // Format:
 // FIRE TRX <pbsui.Transaction>
 func (r *ConsoleReader) readTransactionBlock(params []string) error {
-	if err := validateChunk(params, 1); err != nil {
-		return fmt.Errorf("invalid log line length: %w", err)
-	}
-
-	if r.activeBlock == nil {
-		return fmt.Errorf("no active block in progress when reading TRX")
-	}
-
-	out, err := base64.StdEncoding.DecodeString(params[0])
+	out, err := r.validate(params, "TRX")
 	if err != nil {
-		return fmt.Errorf("read TRX in block %d: invalid base64 value: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
+		return err
 	}
 
 	transaction := &pbsui.Transaction{}
@@ -286,17 +287,9 @@ func (r *ConsoleReader) readTransactionBlock(params []string) error {
 // Format:
 // FIRE OBJ_CHANGE <pbsui.TransactionObjectChange>
 func (r *ConsoleReader) readTransactionObjectChange(params []string) error {
-	if err := validateChunk(params, 1); err != nil {
-		return fmt.Errorf("invalid log line length: %w", err)
-	}
-
-	if r.activeBlock == nil {
-		return fmt.Errorf("no active block in progress when reading TRX")
-	}
-
-	out, err := base64.StdEncoding.DecodeString(params[0])
+	out, err := r.validate(params, "OBJ_CHANGE")
 	if err != nil {
-		return fmt.Errorf("read OBJ_CHANGE in block %d: invalid base64 value: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
+		return err
 	}
 
 	tx_object_change := &pbsui.TransactionObjectChange{}
@@ -312,17 +305,9 @@ func (r *ConsoleReader) readTransactionObjectChange(params []string) error {
 // Format:
 // FIRE EVT <pbsui.IndexedEvent>
 func (r *ConsoleReader) readEvent(params []string) error {
-	if err := validateChunk(params, 1); err != nil {
-		return fmt.Errorf("invalid log line length: %w", err)
-	}
-
-	if r.activeBlock == nil {
-		return fmt.Errorf("no active block in progress when reading EVT")
-	}
-
-	out, err := base64.StdEncoding.DecodeString(params[0])
+	out, err := r.validate(params, "EVT")
 	if err != nil {
-		return fmt.Errorf("read EVT in block %d: invalid base64 value: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
+		return err
 	}
 
 	event := &pbsui.IndexedEvent{}
@@ -338,18 +323,11 @@ func (r *ConsoleReader) readEvent(params []string) error {
 // Format:
 // FIRE EVT <pbsui.StoredDisplay>
 func (r *ConsoleReader) readDisplayUpdate(params []string) error {
-	if err := validateChunk(params, 1); err != nil {
-		return fmt.Errorf("invalid log line length: %w", err)
-	}
-
-	if r.activeBlock == nil {
-		return fmt.Errorf("no active block in progress when reading DSP_UPDATE")
-	}
-
-	out, err := base64.StdEncoding.DecodeString(params[0])
+	out, err := r.validate(params, "DSP_UPDATE")
 	if err != nil {
-		return fmt.Errorf("read DSP_UPDATE in block %d: invalid base64 value: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
+		return err
 	}
+
 	display_update := &pbsui.StoredDisplay{}
 	if err := proto.Unmarshal(out, display_update); err != nil {
 		return fmt.Errorf("read DSP_UPDATE in block %d: invalid proto: %w", r.activeBlock.GetFirehoseBlockNumber(), err)
