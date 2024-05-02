@@ -14,6 +14,18 @@ Make sure the `target/release/sui-sf-indexer` binary is moved to a folder that i
 > Binaries will be available to download soon so you don't have to build from source code.
 
 
+## Sui Config
+
+1. `mkdir ~/.sf_sui && mkdir ~/.sf_sui/sui_config`
+2. `cp devel/mainnet/config/* ~/.sf_sui/sui_config`
+
+We would need to update the following fields to point to the paths of our choice:
+
+1. `db-path`: Set this to the location where the SUI node will store it's database i.e. the blockchain data
+2. `genesis-file-location`: This should be path to the `~/.sf_sui/sui_config/genesis.blob` but since we can't use ~ in yaml files we would need to replace it with `/Users/<user>` on Mac or `/home/<user>` on linux.
+
+We should also update `--sui-node-config` in `indexer.yaml` to point to `/Users/<user>/.sf_sui/sui_config/full_node.yaml`
+
 ## Build Protobuf models
 
 ```bash
