@@ -1,5 +1,5 @@
 # Update this value to the location you want Sui to store its database
-db-path: "/Users/ppoliani/Desktop/sui-mainnet"
+db-path: "/Users/ppoliani/.sf_sui/sui-mainnet"
 
 network-address: "/dns/localhost/tcp/8080/http"
 metrics-address: "0.0.0.0:9184"
