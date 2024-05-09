@@ -11,7 +11,7 @@ start:
     common-first-streamable-block: 1
     reader-node-debug-firehose-logs: true
     # Specifies the path to the binary, we assume you did
-    reader-node-path: "sui-sf-indexer"
+    reader-node-path: "sf-sui-extractor"
     reader-node-data-dir: "{data-dir}/reader-node"
     reader-node-blocks-chan-capacity: 100
     reader-node-start-block-num: 1
